@@ -13,7 +13,7 @@ using namespace std;
 
 int main(int argc, char const* argv[])
 {
-	cv::Mat img = cv::imread("lowlight.jpg");
+	cv::Mat img = cv::imread("image.jpg");
 	if (!img.data){
 		cout << "Something Wrong";
 		return -1;
@@ -21,14 +21,10 @@ int main(int argc, char const* argv[])
 	namedWindow("Input Image", CV_WINDOW_AUTOSIZE);
 	imshow("Input Image", img);
 
-	//vector<Mat> channels;
-	//split(img, channels);
 	double alpha = 0.05;
 	Mat haze_img = Mat::zeros(img.rows, img.cols, CV_8UC3);
 	Mat dark_channel = Mat::zeros(haze_img.size(), CV_8UC1);
-	//Mat transmission = Mat::zeros(haze_img.size(), CV_8UC1);
 	Mat op_img = Mat::zeros(haze_img.size(), CV_8UC3);
-	//Mat dehaze_img = Mat::zeros(haze_img.size(), haze_img.type());
 	vector<Mat> layers;
 
 	for (int i = 0; i < img.rows; i++){
@@ -54,14 +50,14 @@ int main(int argc, char const* argv[])
 	medianBlur(rgbmin, MDCP, 1);
 	dark_channel = MDCP;
 
-	namedWindow("Dark Channel", CV_WINDOW_AUTOSIZE);
-	imshow("Dark Channel", dark_channel);
+	//namedWindow("Dark Channel", CV_WINDOW_AUTOSIZE);
+	//imshow("Dark Channel", dark_channel);
 
 	double minDC, maxDC;
 	minMaxLoc(dark_channel, &minDC, &maxDC);
 	int al = maxDC;
 
-	double w = 0.75;
+	double w = 0.95;
 	Mat transmission = Mat::zeros(dark_channel.rows, dark_channel.cols, CV_8UC1);
 	Scalar intens;
 
@@ -73,8 +69,6 @@ int main(int argc, char const* argv[])
 			transmission.at<uchar>(m, n) = (1 - w * intens.val[0] / al) * 255;
 		}
 	}
-
-	//int ad = int(alpha * double(al) + (1 - alpha) * double(Airlightp));
 
 	double tmin = 0.1;
 	double tmax;
@@ -111,8 +105,7 @@ int main(int argc, char const* argv[])
 
 	namedWindow("Output Image", CV_WINDOW_AUTOSIZE);
 	imshow("Output Image", op_img);
-	//imshow("Equalized", dehazed_hist_equalized);
-	imwrite("out1.jpg", op_img);
+	//imwrite("out1.jpg", op_img);
 	waitKey(0);
 	destroyAllWindows;
 
